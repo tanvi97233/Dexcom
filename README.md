@@ -70,6 +70,19 @@ mistaking the local `app.py` server for a serverless Python function. Use the lo
 above for a working tracker. Deploying a functional cloud version would require separate browser
 automation and persistent workbook/data storage.
 
+## Hosted deployment (Render)
+
+The repository includes a Docker deployment for Render. It runs the same dashboard/API with
+headless Chromium, while `/data/Dexcom_Job_Tracker.xlsx` is retained on a persistent disk.
+
+1. In Render, create a **Blueprint** from this GitHub repository.
+2. Approve the `render.yaml` plan and select the configured paid web-service plan (persistent
+   disks are not available on free instances).
+3. Deploy. Render provides the public URL for the working dashboard.
+
+Do not use Vercel for tracker runs. It can host the static preview only; use the Render service
+for the live dashboard and tracker API.
+
 ## Configuration
 
 Copy `.env.example` to `.env` to change `RESULTS_PER_QUERY`, `BROWSER_HEADLESS`, output filename,

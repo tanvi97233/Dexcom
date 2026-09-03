@@ -8,6 +8,7 @@ import re
 import shutil
 import socket
 import subprocess
+import sys
 import tempfile
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -132,18 +133,21 @@ class ChromeSearchProvider(JobDiscoveryProvider):
             from selenium.webdriver.chrome.options import Options
         except ImportError as error:
             raise DiscoveryError("Selenium is not installed. Run: pip install -r requirements.txt") from error
-        chrome_binary = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+        chrome_binary = os.getenv("CHROME_BINARY", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" if sys.platform == "darwin" else "/usr/bin/chromium")
         if not os.path.exists(chrome_binary):
-            raise DiscoveryError("Chrome could not be started. Please install Google Chrome and make sure it is available on this machine. No API key is required.")
+            raise DiscoveryError(f"Chrome could not be started at {chrome_binary}. Please install Google Chrome and make sure it is available on this machine. No API key is required.")
         self.profile_dir = tempfile.mkdtemp(prefix="dexcom_chrome_")
         self.debug_port = self._free_port()
         try:
             # Launch an ordinary visible local Chrome process, then attach only to its local
             # DevTools port so result collection remains automatic.
-            args = ["open", "-na", "Google Chrome", "--args", f"--remote-debugging-port={self.debug_port}", f"--user-data-dir={self.profile_dir}", "--disable-notifications", "--lang=en-US"]
+            browser_args = [chrome_binary, f"--remote-debugging-port={self.debug_port}", f"--user-data-dir={self.profile_dir}", "--disable-notifications", "--lang=en-US"]
             if self.settings.headless:
-                args.append("--headless=new")
-            subprocess.run(args, check=True, capture_output=True, text=True)
+                browser_args.extend(["--headless=new", "--no-sandbox", "--disable-dev-shm-usage"])
+            if sys.platform == "darwin" and chrome_binary.endswith("Google Chrome"):
+                subprocess.run(["open", "-na", "Google Chrome", "--args", *browser_args[1:]], check=True, capture_output=True, text=True)
+            else:
+                subprocess.Popen(browser_args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             for _ in range(25):
                 try:
                     with urlopen(f"http://127.0.0.1:{self.debug_port}/json/version", timeout=1):
@@ -154,7 +158,12 @@ class ChromeSearchProvider(JobDiscoveryProvider):
                 raise RuntimeError("Chrome DevTools endpoint did not become available")
             options = Options()
             options.debugger_address = f"127.0.0.1:{self.debug_port}"
-            self.driver = webdriver.Chrome(options=options)
+            driver_path = os.getenv("CHROMEDRIVER_PATH", "")
+            if driver_path:
+                from selenium.webdriver.chrome.service import Service
+                self.driver = webdriver.Chrome(service=Service(executable_path=driver_path), options=options)
+            else:
+                self.driver = webdriver.Chrome(options=options)
             self.driver.set_page_load_timeout(30)
         except Exception as error:
             shutil.rmtree(self.profile_dir, ignore_errors=True)

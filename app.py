@@ -25,7 +25,7 @@ from openpyxl import load_workbook
 from tracker_engine import HEADERS, SHEET_NAME
 
 ROOT = Path(__file__).resolve().parent
-WORKBOOK = ROOT / "Dexcom_Job_Tracker.xlsx"
+WORKBOOK = Path(os.getenv("OUTPUT_FILE", ROOT / "Dexcom_Job_Tracker.xlsx")).resolve()
 STATIC = ROOT / "web"
 STATS_LABELS = {
     "job_cards_discovered": "LinkedIn job cards discovered",
@@ -177,8 +177,10 @@ class DashboardHandler(SimpleHTTPRequestHandler):
 
 
 def main() -> None:
-    server = ThreadingHTTPServer(("127.0.0.1", 8000), DashboardHandler)
-    print("Dexcom Job Tracker dashboard: http://127.0.0.1:8000")
+    host = os.getenv("HOST", "127.0.0.1")
+    port = int(os.getenv("PORT", "8000"))
+    server = ThreadingHTTPServer((host, port), DashboardHandler)
+    print(f"Dexcom Job Tracker dashboard: http://{host}:{port}")
     print("Press Ctrl+C to stop.")
     try:
         server.serve_forever()

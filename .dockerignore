@@ -1,0 +1,10 @@
+.git
+.venv
+.pytest_cache
+__pycache__
+logs
+.env
+debug_bing.html
+debug_bing.png
+raw_jobs.txt
+Dexcom_Job_Tracker.xlsx
