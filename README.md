@@ -1,101 +1,110 @@
-# Dexcom Job Posting Link Preservation
+# Dexcom LinkedIn Job Tracker
 
-This tool uses local Chrome to collect the publicly rendered LinkedIn Jobs search cards for
-**Dexcom**, **Worldwide**. It does not use an API, credentials, or automated login.
+This project collects publicly rendered **Dexcom** LinkedIn Jobs postings worldwide and maintains a
+single Excel tracker. It uses local/headless Chrome with Selenium—no LinkedIn login, credentials,
+paid APIs, or access-control bypasses.
 
-The tracker maintains `Dexcom_Job_Tracker.xlsx` with exactly **Country**, **Job Posted Date**,
-**Job Title**, and **Direct URL**. Job IDs canonicalize URLs for deduplication across runs; links
-are written as clickable Excel hyperlinks.
+The workbook is the canonical dataset and always has exactly these columns:
 
-## Setup
+```text
+Country
+Job Posted Date
+Job Title
+Direct URL
+```
+
+## Production architecture
+
+```text
+GitHub Actions → existing Python tracker → Dexcom_Job_Tracker.xlsx
+                                             ↓
+                                      web/jobs.json
+                                             ↓
+                                  static dashboard / Excel download
+```
+
+GitHub Actions runs the real tracker and commits the resulting workbook and dashboard JSON to the
+repository. The static dashboard never attempts to run Python or Selenium.
+
+### Schedule
+
+GitHub Actions cron uses **UTC**:
+
+| Day | UTC schedule | IST time | Filter |
+| --- | --- | --- | --- |
+| Thursday | 03:30 UTC | 09:00 IST | Past 7 Days (`7days`) |
+| Friday | 03:30 UTC | 09:00 IST | Past 24 Hours (`24hours`) |
+
+Scheduled runs are serialized, so two runs cannot update the workbook at the same time.
+
+## Run the workflow manually
+
+1. Open the GitHub repository’s **Actions** tab.
+2. Choose **Dexcom LinkedIn Job Tracker**.
+3. Select **Run workflow**.
+4. Choose `7days` or `24hours` and run it.
+
+After a successful run, the workflow validates the workbook, regenerates `web/jobs.json` from the
+workbook, and commits both files only if they changed.
+
+## Static dashboard and download
+
+The dashboard reads the committed `web/jobs.json`, which is generated from—not maintained
+separately from—the Excel workbook. It supports searching, country filtering, sorting, and
+pagination. Its **Download Excel** link downloads the committed
+[`Dexcom_Job_Tracker.xlsx`](Dexcom_Job_Tracker.xlsx).
+
+Vercel, if used, is strictly a static host for this dashboard and workbook. It does not execute the
+tracker.
+
+## Local development
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-```
-
-Google Chrome must be installed. Chrome is visible by default.
-
-## Start application
-
-Start the local dashboard and API with one command:
-
-```bash
 PYTHONPATH=. python app.py
 ```
 
-Then open [http://127.0.0.1:8000](http://127.0.0.1:8000). The server starts the existing
-tracker in a background process, so the dashboard remains responsive while Chrome performs the
-public LinkedIn Jobs discovery.
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000). The local app retains its API and can run the
+existing CLI on demand for development. Local Chrome is visible by default; set
+`BROWSER_HEADLESS=true` for headless mode.
 
-## Use dashboard
-
-1. Open the local dashboard.
-2. Select **Past 7 Days** or **Past 24 Hours**.
-3. Click **Run Tracker**.
-4. Wait for the completion status and current run statistics.
-5. Search, sort, or filter the loaded jobs.
-6. Use **Download Excel** to download the actual generated workbook.
-
-## CLI
+### CLI
 
 ```bash
-PYTHONPATH=. python dexcom_tracker.py --filter 7days
-PYTHONPATH=. python dexcom_tracker.py --filter 24hours
-PYTHONPATH=. python dexcom_tracker.py --filter 7days --dry-run --verbose
+PYTHONPATH=. python dexcom_tracker.py --filter 7days --output Dexcom_Job_Tracker.xlsx
+PYTHONPATH=. python dexcom_tracker.py --filter 24hours --output Dexcom_Job_Tracker.xlsx
 ```
 
-`--dry-run` leaves the workbook unchanged. The public filter is represented in the search URL and
-the engine applies its own exact relative-time filtering afterward.
+The tracker validates Dexcom employment, applies the selected date window, canonicalizes LinkedIn
+job URLs, and deduplicates by LinkedIn job ID before updating Excel.
 
-## Architecture
+### Refresh static dashboard data locally
 
-```text
-Dashboard (HTML/CSS/JavaScript) → local Python API → existing Python tracker
-→ public LinkedIn Jobs discovery → validation/deduplication/date filtering → Excel
+After any direct workbook update, regenerate the dashboard JSON:
+
+```bash
+PYTHONPATH=. python export_dashboard_data.py \
+  --workbook Dexcom_Job_Tracker.xlsx \
+  --output web/jobs.json
 ```
 
-The web layer does not replicate tracker rules. It launches `dexcom_tracker.py`, reads the
-workbook it produces, and serves that workbook unchanged from `/api/download`.
+This command validates the workbook’s headers, direct URLs, and duplicate URLs before writing JSON.
 
-## Vercel
+## Optional Docker verification
 
-This project is a **local application**. Its tracker requires a locally installed Chrome browser,
-creates a workbook on the local filesystem, and keeps an in-memory run state. Those requirements
-are not compatible with Vercel's short-lived serverless functions or its ephemeral filesystem.
-
-`vercel.json` intentionally deploys the static dashboard files only, preventing Vercel from
-mistaking the local `app.py` server for a serverless Python function. Use the local start command
-above for a working tracker. Deploying a functional cloud version would require separate browser
-automation and persistent workbook/data storage.
-
-## Hosted deployment (Render)
-
-The repository includes a Docker deployment for Render. It runs the same dashboard/API with
-headless Chromium, while `/data/Dexcom_Job_Tracker.xlsx` is retained on a persistent disk.
-
-1. In Render, create a **Blueprint** from this GitHub repository.
-2. Approve the `render.yaml` plan and select the configured paid web-service plan (persistent
-   disks are not available on free instances).
-3. Deploy. Render provides the public URL for the working dashboard.
-
-Do not use Vercel for tracker runs. It can host the static preview only; use the Render service
-for the live dashboard and tracker API.
-
-## Configuration
-
-Copy `.env.example` to `.env` to change `RESULTS_PER_QUERY`, `BROWSER_HEADLESS`, output filename,
-or company keyword. No API key is required.
-
-## Limitations
-
-The tool only uses content LinkedIn publicly renders. If LinkedIn displays a verification, CAPTCHA,
-or other access restriction, it stops without attempting to bypass it and does not modify Excel.
+`Dockerfile` remains available only for reproducible local/headless Chromium testing. Render is no
+longer part of the application architecture, and `render.yaml` has been removed.
 
 ## Tests
 
 ```bash
 PYTHONPATH=. pytest -q
-PYTHONPATH=. python -m compileall . -x '.venv'
+PYTHONPATH=. python -m compileall app.py discovery.py dexcom_tracker.py tracker_engine.py query_matrix.py export_dashboard_data.py
 ```
+
+## Limitations
+
+The tracker uses only what LinkedIn publicly renders. If LinkedIn shows a verification, CAPTCHA,
+or another access restriction, it stops without attempting to bypass it and leaves Excel unchanged.

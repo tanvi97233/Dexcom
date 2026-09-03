@@ -10,19 +10,13 @@
   <main class="shell">
     <header class="header">
       <div><h1>Dexcom Job Tracker</h1><p>Worldwide LinkedIn Job Monitoring</p></div>
-      <div class="run-meta"><span id="lastRun">Last Run: —</span><span id="status" class="status ready"><i></i> Ready</span></div>
+      <div class="run-meta"><span id="lastRun">Last update: —</span><span id="status" class="status ready"><i></i> Automated</span></div>
     </header>
 
-    <section class="control-card" aria-labelledby="search-heading">
-      <div><h2 id="search-heading">Job Search</h2><p>Find the latest publicly listed Dexcom opportunities.</p></div>
-      <div class="controls">
-        <div class="segmented" role="group" aria-label="Date filter">
-          <button class="filter active" data-filter="7days" aria-pressed="true">Past 7 Days</button>
-          <button class="filter" data-filter="24hours" aria-pressed="false">Past 24 Hours</button>
-        </div>
-        <button id="runButton" class="primary"><span class="spinner" aria-hidden="true"></span><span>Run Tracker</span></button>
-      </div>
-      <p id="runMessage" class="run-message" role="status">Ready to run the tracker.</p>
+    <section class="control-card" aria-labelledby="schedule-heading">
+      <div><h2 id="schedule-heading">Automatic tracking</h2><p>GitHub Actions runs the public LinkedIn tracker every Thursday and Friday at 09:00 IST.</p></div>
+      <div class="schedule-label"><span>Thursday</span><strong>Past 7 Days</strong><span>Friday</span><strong>Past 24 Hours</strong></div>
+      <p id="runMessage" class="run-message" role="status">Latest committed tracker results are shown below.</p>
     </section>
 
     <section id="errorPanel" class="error-panel hidden" role="alert">
@@ -35,9 +29,9 @@
     <section class="table-card">
       <div class="table-header">
         <div><h2>Job Postings</h2><p id="jobCount">No jobs loaded yet</p></div>
-        <a href="/api/download" id="downloadButton" class="secondary disabled" aria-disabled="true">Download Excel</a>
+        <a href="Dexcom_Job_Tracker.xlsx" id="downloadButton" class="secondary" download>Download Excel</a>
       </div>
-      <div id="emptyState" class="empty-state"><div class="empty-icon">⌕</div><h2>No jobs loaded yet</h2><p>Run the tracker to collect the latest Dexcom LinkedIn job postings.</p><button class="primary empty-run">Run Tracker</button></div>
+      <div id="emptyState" class="empty-state"><div class="empty-icon">⌕</div><h2>No jobs loaded yet</h2><p>The next scheduled GitHub Actions run will publish the latest Dexcom LinkedIn job postings.</p></div>
       <div id="tableTools" class="table-tools hidden"><input id="search" type="search" placeholder="Search by title or country" aria-label="Search jobs"><select id="country" aria-label="Filter by country"><option value="">All countries</option></select></div>
       <div id="tableWrap" class="table-wrap hidden"><table><thead><tr><th data-key="country">Country <b>↕</b></th><th data-key="posted_date">Job Posted Date <b>↕</b></th><th data-key="title">Job Title <b>↕</b></th><th>Direct URL</th></tr></thead><tbody id="jobsBody"></tbody></table></div>
       <div id="pagination" class="pagination hidden"></div>

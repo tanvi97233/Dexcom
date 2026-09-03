@@ -79,7 +79,7 @@ def parse_stats(output: str) -> dict:
 
 def launch_run(run_id: str, filter_name: str) -> None:
     # Pass the API's resolved workbook path explicitly so reads, updates, and downloads
-    # always target the same persistent file (for Render, /data/Dexcom_Job_Tracker.xlsx).
+    # always target the same configured workbook file.
     command = [sys.executable, "dexcom_tracker.py", "--filter", filter_name, "--output", str(WORKBOOK), "--verbose"]
     environment = os.environ.copy()
     environment["OUTPUT_FILE"] = str(WORKBOOK)
@@ -143,6 +143,17 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             except Exception as error:
                 return self.send_json({"error": "Could not read the tracker workbook.", "details": str(error)}, HTTPStatus.INTERNAL_SERVER_ERROR)
         if parsed.path == "/api/download":
+            if not WORKBOOK.exists():
+                return self.send_json({"error": "The tracker workbook has not been created yet."}, HTTPStatus.NOT_FOUND)
+            data = WORKBOOK.read_bytes()
+            self.send_response(HTTPStatus.OK)
+            self.send_header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            self.send_header("Content-Disposition", 'attachment; filename="Dexcom_Job_Tracker.xlsx"')
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+            return
+        if parsed.path == "/Dexcom_Job_Tracker.xlsx":
             if not WORKBOOK.exists():
                 return self.send_json({"error": "The tracker workbook has not been created yet."}, HTTPStatus.NOT_FOUND)
             data = WORKBOOK.read_bytes()

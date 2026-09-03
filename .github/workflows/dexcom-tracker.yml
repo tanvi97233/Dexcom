@@ -1,0 +1,94 @@
+name: Dexcom LinkedIn Job Tracker
+
+on:
+  schedule:
+    # GitHub Actions cron is UTC: 09:00 IST is 03:30 UTC.
+    - cron: "30 3 * * 4" # Thursday: Past 7 Days
+    - cron: "30 3 * * 5" # Friday: Past 24 Hours
+  workflow_dispatch:
+    inputs:
+      filter:
+        description: Date range to collect
+        required: true
+        default: 7days
+        type: choice
+        options:
+          - 7days
+          - 24hours
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dexcom-tracker-workbook
+  cancel-in-progress: false
+
+jobs:
+  update-tracker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+
+      - name: Configure a supported browser
+        shell: bash
+        run: |
+          set -euo pipefail
+          if command -v google-chrome >/dev/null; then
+            browser="$(command -v google-chrome)"
+          elif command -v chromium >/dev/null; then
+            browser="$(command -v chromium)"
+          else
+            sudo apt-get update
+            sudo apt-get install -y chromium-browser chromium-chromedriver || sudo apt-get install -y chromium chromium-driver
+            browser="$(command -v chromium || command -v chromium-browser)"
+          fi
+          echo "CHROME_BINARY=$browser" >> "$GITHUB_ENV"
+          if command -v chromedriver >/dev/null; then
+            echo "CHROMEDRIVER_PATH=$(command -v chromedriver)" >> "$GITHUB_ENV"
+          fi
+          "$browser" --version
+
+      - name: Choose tracker date filter
+        id: filter
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "value=${{ inputs.filter }}" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.event.schedule }}" == "30 3 * * 4" ]]; then
+            echo "value=7days" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=24hours" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run the existing tracker
+        env:
+          BROWSER_HEADLESS: "true"
+          OUTPUT_FILE: Dexcom_Job_Tracker.xlsx
+        run: PYTHONPATH=. python dexcom_tracker.py --filter "${{ steps.filter.outputs.value }}" --output Dexcom_Job_Tracker.xlsx --verbose
+
+      - name: Validate workbook and generate static dashboard data
+        run: PYTHONPATH=. python export_dashboard_data.py --workbook Dexcom_Job_Tracker.xlsx --output web/jobs.json
+
+      - name: Commit updated tracker data
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Dexcom_Job_Tracker.xlsx web/jobs.json
+          if git diff --cached --quiet; then
+            echo "Workbook and dashboard data are already up to date."
+          else
+            git commit -m "Update Dexcom job tracker"
+            git push origin HEAD:main
+          fi

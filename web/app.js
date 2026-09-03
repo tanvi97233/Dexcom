@@ -1,20 +1,70 @@
-const state = { filter: '7days', jobs: [], sort: { key: 'posted_date', asc: false }, page: 1, pageSize: 12, runId: null };
+const state = { jobs: [], sort: { key: 'posted_date', asc: false }, page: 1, pageSize: 12 };
 const $ = (id) => document.getElementById(id);
-const statNames = {job_cards_discovered:'Jobs discovered',valid_linkedin_urls:'Valid LinkedIn URLs',unique_jobs:'Unique jobs',jobs_within_date_range:'Jobs in date range',new_jobs_added:'New jobs added',validation_failures:'Validation failures',duplicates_removed:'Duplicates removed',existing_jobs_skipped:'Existing jobs skipped'};
 
-async function fetchJson(url, options) { const response = await fetch(url, options); const contentType = response.headers.get('content-type') || ''; if (!contentType.includes('application/json')) throw new Error('The local tracker API is unavailable in this deployment.'); const payload = await response.json(); return { response, payload }; }
-function setStatus(status) { const el=$('status'); const labels={ready:'Ready',running:'Running',completed:'Completed',failed:'Error'}; el.className=`status ${status === 'failed' ? 'error' : status}`; el.innerHTML=`<i></i> ${labels[status] || 'Ready'}`; }
-function formatDate(value) { if (!value) return '—'; const d = new Date(`${value.slice(0,10)}T00:00:00`); return Number.isNaN(d) ? value : d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }
-function setLastRun(run) { $('lastRun').textContent = `Last Run: ${run?.completed_at || run?.started_at ? new Date(run.completed_at || run.started_at).toLocaleString() : '—'}`; }
-function showStats(stats) { const section=$('statsSection'); if (!stats) return section.classList.add('hidden'); section.innerHTML=Object.entries(statNames).filter(([key]) => ['job_cards_discovered','valid_linkedin_urls','unique_jobs','jobs_within_date_range','new_jobs_added'].includes(key) || stats[key] > 0).map(([key,label])=>`<article class="stat"><div class="label">${label}</div><div class="number">${stats[key] ?? 0}</div></article>`).join(''); section.classList.remove('hidden'); }
-function setError(run) { const panel=$('errorPanel'); if (!run || run.status !== 'failed') return panel.classList.add('hidden'); $('errorMessage').textContent=run.error || 'The job discovery process encountered an error.'; $('errorDetails').textContent=run.details || 'No additional details were available.'; panel.classList.remove('hidden'); }
-async function loadJobs() { const {response,data} = await fetchJson('/api/jobs').then(({response,payload})=>({response,data:payload})); if (!response.ok) throw new Error(data.error || 'Could not load jobs.'); state.jobs=data.jobs; const countries=[...new Set(state.jobs.map(j=>j.country).filter(Boolean))].sort(); $('country').innerHTML='<option value="">All countries</option>'+countries.map(c=>`<option>${escapeHtml(c)}</option>`).join(''); renderTable(); }
-function escapeHtml(value) { const el=document.createElement('div'); el.textContent=value; return el.innerHTML; }
-function filteredJobs() { const query=$('search').value.trim().toLowerCase(), country=$('country').value; return state.jobs.filter(job=>(!query || `${job.title} ${job.country}`.toLowerCase().includes(query)) && (!country || job.country===country)).sort((a,b)=>{const va=(a[state.sort.key]||'').toLowerCase(),vb=(b[state.sort.key]||'').toLowerCase(); return (va>vb?1:va<vb?-1:0)*(state.sort.asc?1:-1);}); }
-function renderTable() { const jobs=filteredJobs(), start=(state.page-1)*state.pageSize, rows=jobs.slice(start,start+state.pageSize); $('jobCount').textContent=`${jobs.length} ${jobs.length===1?'job':'jobs'} ${jobs.length !== state.jobs.length ? 'matching filters' : 'loaded'}`; const has=state.jobs.length>0; $('emptyState').classList.toggle('hidden',has); $('tableTools').classList.toggle('hidden',!has); $('tableWrap').classList.toggle('hidden',!has); $('pagination').classList.toggle('hidden',!has); $('downloadButton').classList.toggle('disabled',!has); $('downloadButton').setAttribute('aria-disabled',String(!has)); $('jobsBody').innerHTML=rows.length ? rows.map(job=>`<tr><td>${escapeHtml(job.country)}</td><td>${formatDate(job.posted_date)}</td><td>${escapeHtml(job.title)}</td><td><a class="job-link" href="${escapeHtml(job.url)}" target="_blank" rel="noopener noreferrer">View on LinkedIn ↗</a></td></tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:#667085;padding:32px">No matching jobs found</td></tr>'; const pages=Math.max(1,Math.ceil(jobs.length/state.pageSize)); if(state.page>pages){state.page=pages;return renderTable()} $('pagination').innerHTML=pages>1?`<button ${state.page===1?'disabled':''} data-page="${state.page-1}">Previous</button>${Array.from({length:pages},(_,i)=>`<button class="${i+1===state.page?'active':''}" data-page="${i+1}">${i+1}</button>`).join('')}<button ${state.page===pages?'disabled':''} data-page="${state.page+1}">Next</button>`:''; }
-function setRunning(running) { const button=$('runButton'); button.disabled=running; button.classList.toggle('loading',running); document.querySelector('.empty-run').disabled=running; }
-async function runTracker() { setRunning(true); $('runMessage').textContent='Running tracker...'; $('errorPanel').classList.add('hidden'); try { const {response,payload:run}=await fetchJson('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filter:state.filter})}); if(!response.ok) throw new Error(run.error || 'Could not start tracker.'); state.runId=run.id; setStatus('running'); setLastRun(run); pollRun(); } catch(error) { setRunning(false); setStatus('failed'); $('runMessage').textContent='Tracker failed'; setError({status:'failed',error:error.message,details:error.message}); } }
-async function pollRun() { try { const {response,payload:run}=await fetchJson(`/api/run/${state.runId}`); if(!response.ok) throw new Error(run.error || 'Could not read tracker status.'); setStatus(run.status); setLastRun(run); if(run.status==='running'){setTimeout(pollRun,1500);return} setRunning(false); if(run.status==='completed'){ $('runMessage').textContent='Tracker completed successfully'; showStats(run.stats); await loadJobs(); } else { $('runMessage').textContent='Tracker failed'; setError(run); } } catch(error) { setRunning(false); setStatus('failed'); $('runMessage').textContent='Tracker failed'; setError({status:'failed',error:error.message,details:error.message}); } }
-function showHostedPreview() { $('runButton').disabled=true; document.querySelector('.empty-run').disabled=true; $('downloadButton').classList.add('disabled'); $('downloadButton').setAttribute('aria-disabled','true'); $('status').className='status ready'; $('status').innerHTML='<i></i> Static preview'; $('runMessage').textContent='Tracker actions are available only in the local application, where Chrome and the Excel workbook are available.'; $('emptyState').querySelector('h2').textContent='Tracker runs locally'; $('emptyState').querySelector('p').textContent='This hosted preview cannot run Chrome-based LinkedIn discovery or update the local Excel workbook.'; }
-async function initialise() { document.querySelectorAll('.filter').forEach(button=>button.addEventListener('click',()=>{state.filter=button.dataset.filter;document.querySelectorAll('.filter').forEach(b=>{const active=b===button;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});})); $('runButton').addEventListener('click',runTracker); $('.empty-run').addEventListener('click',runTracker); $('search').addEventListener('input',()=>{state.page=1;renderTable()}); $('country').addEventListener('change',()=>{state.page=1;renderTable()}); document.querySelectorAll('th[data-key]').forEach(th=>th.addEventListener('click',()=>{const key=th.dataset.key;state.sort={key,asc:state.sort.key===key?!state.sort.asc:true};renderTable()})); $('pagination').addEventListener('click',event=>{const page=event.target.dataset.page;if(page){state.page=Number(page);renderTable()}}); try { const {response,payload:status}=await fetchJson('/api/status'); if(!response.ok) throw new Error(status.error || 'Could not load dashboard status.'); setStatus(status.status); setLastRun(status.last_run); if(status.last_run?.stats) showStats(status.last_run.stats); if(status.status==='running'&&status.last_run?.id){state.runId=status.last_run.id;setRunning(true);pollRun()} await loadJobs(); } catch(error) { showHostedPreview(); } }
+function escapeHtml(value) { const element = document.createElement('div'); element.textContent = value; return element.innerHTML; }
+function formatDate(value) { if (!value) return '—'; const date = new Date(`${value.slice(0, 10)}T00:00:00`); return Number.isNaN(date) ? value : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); }
+function formatTimestamp(value) { const date = new Date(value); return Number.isNaN(date) ? '—' : date.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }); }
+
+function setLoadError(message) {
+  $('status').className = 'status error';
+  $('status').innerHTML = '<i></i> Data unavailable';
+  $('runMessage').textContent = 'The latest tracker data could not be loaded.';
+  $('errorMessage').textContent = message;
+  $('errorDetails').textContent = 'The static dashboard reads web/jobs.json generated from the committed Excel workbook.';
+  $('errorPanel').classList.remove('hidden');
+}
+
+function showStats() {
+  const countries = new Set(state.jobs.map((job) => job.country).filter(Boolean));
+  const latest = state.jobs.map((job) => job.posted_date).filter(Boolean).sort().at(-1);
+  $('statsSection').innerHTML = [
+    ['Jobs in tracker', state.jobs.length], ['Countries', countries.size],
+    ['Latest posting', latest ? formatDate(latest) : '—'], ['Data source', 'GitHub Actions'],
+  ].map(([label, value]) => `<article class="stat"><div class="label">${label}</div><div class="number">${escapeHtml(String(value))}</div></article>`).join('');
+  $('statsSection').classList.remove('hidden');
+}
+
+function filteredJobs() {
+  const query = $('search').value.trim().toLowerCase();
+  const country = $('country').value;
+  return state.jobs.filter((job) => (!query || `${job.title} ${job.country}`.toLowerCase().includes(query)) && (!country || job.country === country)).sort((left, right) => {
+    const a = (left[state.sort.key] || '').toLowerCase(); const b = (right[state.sort.key] || '').toLowerCase();
+    return (a > b ? 1 : a < b ? -1 : 0) * (state.sort.asc ? 1 : -1);
+  });
+}
+
+function renderTable() {
+  const jobs = filteredJobs(); const pages = Math.max(1, Math.ceil(jobs.length / state.pageSize));
+  state.page = Math.min(state.page, pages);
+  const rows = jobs.slice((state.page - 1) * state.pageSize, state.page * state.pageSize);
+  $('jobCount').textContent = `${jobs.length} ${jobs.length === 1 ? 'job' : 'jobs'}${jobs.length !== state.jobs.length ? ' matching filters' : ' loaded'}`;
+  const hasJobs = state.jobs.length > 0;
+  $('emptyState').classList.toggle('hidden', hasJobs); $('tableTools').classList.toggle('hidden', !hasJobs); $('tableWrap').classList.toggle('hidden', !hasJobs); $('pagination').classList.toggle('hidden', !hasJobs);
+  $('jobsBody').innerHTML = rows.length ? rows.map((job) => `<tr><td>${escapeHtml(job.country)}</td><td>${formatDate(job.posted_date)}</td><td>${escapeHtml(job.title)}</td><td><a class="job-link" href="${escapeHtml(job.url)}" target="_blank" rel="noopener noreferrer">View on LinkedIn ↗</a></td></tr>`).join('') : '<tr><td colspan="4" class="no-matches">No matching jobs found</td></tr>';
+  $('pagination').innerHTML = pages > 1 ? `<button ${state.page === 1 ? 'disabled' : ''} data-page="${state.page - 1}">Previous</button>${Array.from({ length: pages }, (_, index) => `<button class="${index + 1 === state.page ? 'active' : ''}" data-page="${index + 1}">${index + 1}</button>`).join('')}<button ${state.page === pages ? 'disabled' : ''} data-page="${state.page + 1}">Next</button>` : '';
+}
+
+async function loadDashboard() {
+  try {
+    const response = await fetch('jobs.json', { cache: 'no-store' });
+    if (!response.ok) throw new Error(`Static data request failed (${response.status}).`);
+    if (!(response.headers.get('content-type') || '').includes('application/json')) throw new Error('Static tracker data did not return JSON.');
+    const payload = await response.json();
+    if (!Array.isArray(payload.jobs)) throw new Error('Static tracker data has an invalid jobs list.');
+    state.jobs = payload.jobs;
+    $('lastRun').textContent = `Last update: ${formatTimestamp(payload.generated_at)}`;
+    const countries = [...new Set(state.jobs.map((job) => job.country).filter(Boolean))].sort();
+    $('country').innerHTML = '<option value="">All countries</option>' + countries.map((country) => `<option>${escapeHtml(country)}</option>`).join('');
+    showStats(); renderTable();
+  } catch (error) { setLoadError(error.message); }
+}
+
+function initialise() {
+  $('search').addEventListener('input', () => { state.page = 1; renderTable(); });
+  $('country').addEventListener('change', () => { state.page = 1; renderTable(); });
+  document.querySelectorAll('th[data-key]').forEach((header) => header.addEventListener('click', () => { const key = header.dataset.key; state.sort = { key, asc: state.sort.key === key ? !state.sort.asc : true }; renderTable(); }));
+  $('pagination').addEventListener('click', (event) => { if (event.target.dataset.page) { state.page = Number(event.target.dataset.page); renderTable(); } });
+  loadDashboard();
+}
+
 initialise();

@@ -5,6 +5,10 @@
     {
       "src": "web/**",
       "use": "@vercel/static"
+    },
+    {
+      "src": "Dexcom_Job_Tracker.xlsx",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -15,6 +19,14 @@
     {
       "src": "/app.js",
       "dest": "/web/app.js"
+    },
+    {
+      "src": "/jobs.json",
+      "dest": "/web/jobs.json"
+    },
+    {
+      "src": "/Dexcom_Job_Tracker.xlsx",
+      "dest": "/Dexcom_Job_Tracker.xlsx"
     },
     {
       "src": "/(.*)",
