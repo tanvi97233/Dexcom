@@ -78,8 +78,11 @@ def parse_stats(output: str) -> dict:
 
 
 def launch_run(run_id: str, filter_name: str) -> None:
-    command = [sys.executable, "dexcom_tracker.py", "--filter", filter_name, "--verbose"]
+    # Pass the API's resolved workbook path explicitly so reads, updates, and downloads
+    # always target the same persistent file (for Render, /data/Dexcom_Job_Tracker.xlsx).
+    command = [sys.executable, "dexcom_tracker.py", "--filter", filter_name, "--output", str(WORKBOOK), "--verbose"]
     environment = os.environ.copy()
+    environment["OUTPUT_FILE"] = str(WORKBOOK)
     environment["PYTHONPATH"] = str(ROOT) + os.pathsep + environment.get("PYTHONPATH", "")
     try:
         result = subprocess.run(command, cwd=ROOT, env=environment, text=True, capture_output=True)
