@@ -59,6 +59,17 @@ Dashboard (HTML/CSS/JavaScript) → local Python API → existing Python tracker
 The web layer does not replicate tracker rules. It launches `dexcom_tracker.py`, reads the
 workbook it produces, and serves that workbook unchanged from `/api/download`.
 
+## Vercel
+
+This project is a **local application**. Its tracker requires a locally installed Chrome browser,
+creates a workbook on the local filesystem, and keeps an in-memory run state. Those requirements
+are not compatible with Vercel's short-lived serverless functions or its ephemeral filesystem.
+
+`vercel.json` intentionally deploys the static dashboard files only, preventing Vercel from
+mistaking the local `app.py` server for a serverless Python function. Use the local start command
+above for a working tracker. Deploying a functional cloud version would require separate browser
+automation and persistent workbook/data storage.
+
 ## Configuration
 
 Copy `.env.example` to `.env` to change `RESULTS_PER_QUERY`, `BROWSER_HEADLESS`, output filename,
