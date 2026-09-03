@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dexcom Job Tracker</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="header">
+      <div><h1>Dexcom Job Tracker</h1><p>Worldwide LinkedIn Job Monitoring</p></div>
+      <div class="run-meta"><span id="lastRun">Last Run: —</span><span id="status" class="status ready"><i></i> Ready</span></div>
+    </header>
+
+    <section class="control-card" aria-labelledby="search-heading">
+      <div><h2 id="search-heading">Job Search</h2><p>Find the latest publicly listed Dexcom opportunities.</p></div>
+      <div class="controls">
+        <div class="segmented" role="group" aria-label="Date filter">
+          <button class="filter active" data-filter="7days" aria-pressed="true">Past 7 Days</button>
+          <button class="filter" data-filter="24hours" aria-pressed="false">Past 24 Hours</button>
+        </div>
+        <button id="runButton" class="primary"><span class="spinner" aria-hidden="true"></span><span>Run Tracker</span></button>
+      </div>
+      <p id="runMessage" class="run-message" role="status">Ready to run the tracker.</p>
+    </section>
+
+    <section id="errorPanel" class="error-panel hidden" role="alert">
+      <div><h2>Tracker could not complete</h2><p id="errorMessage">The job discovery process encountered an error.</p></div>
+      <details><summary>Technical details</summary><pre id="errorDetails"></pre></details>
+    </section>
+
+    <section id="statsSection" class="stats hidden" aria-label="Run statistics"></section>
+
+    <section class="table-card">
+      <div class="table-header">
+        <div><h2>Job Postings</h2><p id="jobCount">No jobs loaded yet</p></div>
+        <a href="/api/download" id="downloadButton" class="secondary disabled" aria-disabled="true">Download Excel</a>
+      </div>
+      <div id="emptyState" class="empty-state"><div class="empty-icon">⌕</div><h2>No jobs loaded yet</h2><p>Run the tracker to collect the latest Dexcom LinkedIn job postings.</p><button class="primary empty-run">Run Tracker</button></div>
+      <div id="tableTools" class="table-tools hidden"><input id="search" type="search" placeholder="Search by title or country" aria-label="Search jobs"><select id="country" aria-label="Filter by country"><option value="">All countries</option></select></div>
+      <div id="tableWrap" class="table-wrap hidden"><table><thead><tr><th data-key="country">Country <b>↕</b></th><th data-key="posted_date">Job Posted Date <b>↕</b></th><th data-key="title">Job Title <b>↕</b></th><th>Direct URL</th></tr></thead><tbody id="jobsBody"></tbody></table></div>
+      <div id="pagination" class="pagination hidden"></div>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+country,job_posted_date,job_title,direct_url
+"Atlanta, Georgia, United States",2 hours ago,Senior Software Engineer (Sample),https://www.linkedin.com/jobs/view/9000000001/?trk=sample
+"Dublin, County Dublin, Ireland",2026-08-27,Field Clinical Specialist (Sample),https://www.linkedin.com/jobs/view/9000000002/
+"Bengaluru, Karnataka, India",1 day ago,Clinical Data Analyst (Sample),https://www.linkedin.com/jobs/view/9000000003/?refId=sample
+Germany,1 week ago,Regulatory Affairs Specialist (Sample),https://www.linkedin.com/jobs/view/9000000004/
+"Atlanta, Georgia, United States",2 hours ago,Senior Software Engineer duplicate (Sample),https://www.linkedin.com/jobs/view/9000000001/?trk=another
+France,2026-08-25,Duplicate URL (Sample),https://www.linkedin.com/jobs/view/9000000002/?trackingId=abc
+,3 days ago,Missing Country (Sample),https://www.linkedin.com/jobs/view/9000000005/
+Spain,not a date,Invalid Date (Sample),https://www.linkedin.com/jobs/view/9000000006/
+Italy,2026-08-22,Invalid URL (Sample),https://example.com/jobs/view/9000000007/
