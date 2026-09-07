@@ -99,14 +99,14 @@ def parse_posted_date(value: str, reference: datetime) -> date | None:
     return parsed.date() if parsed else None
 
 def is_dexcom_employer(result: JobResult) -> bool:
-    company = clean(result.company).casefold()
-    title = clean(result.title)
-    snippet = clean(result.snippet)
-    if company and (company == "dexcom" or company.startswith("dexcom ") or company.startswith("dexcom-")):
-        return True
-    return bool(re.match(r"^dexcom(?:\s+[^|]+)?\s+hiring\s+", title, re.I) or
-                re.search(r"\bat\s+dexcom(?:\b|$)", title, re.I) or
-                re.match(r"^dexcom(?:\s+[^,.]+)?\s+[A-Z][^,]+,", snippet, re.I))
+    """Return true only for the canonical Dexcom LinkedIn company name.
+
+    Discovery supplies the company label rendered on a LinkedIn job card.  Job
+    titles and snippets are not employer identity: using them as a fallback can
+    turn a regional entity such as "Dexcom Philippines" into a false match.
+    """
+    company = re.sub(r"\s+", " ", clean(result.company)).casefold()
+    return company == "dexcom"
 
 def validate(result: JobResult, reference: datetime) -> tuple[JobRecord | None, str | None]:
     if not is_dexcom_employer(result):

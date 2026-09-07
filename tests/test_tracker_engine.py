@@ -26,12 +26,26 @@ class TrackerEngineTests(unittest.TestCase):
         self.assertEqual({job_id_from_url(url) for url in urls}, {"123"})
         self.assertEqual(canonical_url(urls[2])[0], "https://www.linkedin.com/jobs/view/123/")
     def test_employer_validation(self):
-        good = JobResult("https://www.linkedin.com/jobs/view/1/", "Dexcom hiring Engineer in Dublin, Ireland", "", "Dublin, Ireland", "today")
+        good = JobResult("https://www.linkedin.com/jobs/view/1/", "Engineer", "Dexcom", "Dublin, Ireland", "today")
         bad = JobResult("https://www.linkedin.com/jobs/view/2/", "Engineer", "Other Company", "Dublin, Ireland", "today", "Working with Dexcom technology")
         self.assertTrue(is_dexcom_employer(good)); self.assertFalse(is_dexcom_employer(bad))
+    def test_employer_validation_requires_exact_normalized_company_name(self):
+        for company in ("Dexcom", "dexcom", "DEXCOM", " Dexcom ", "Dexcom\t\n"):
+            with self.subTest(company=company):
+                self.assertTrue(is_dexcom_employer(JobResult("", company=company)))
+        for company in (
+            "Dexcom Philippines", "Dexcom Lithuania", "Dexcom India", "Dexcom UK",
+            "Dexcom Germany", "Dexcom Technologies", "Dexcom Health",
+            "Dexcom Deutschland GmbH", "Dexcom-Philippines",
+        ):
+            with self.subTest(company=company):
+                self.assertFalse(is_dexcom_employer(JobResult("", company=company)))
     def test_metadata_mapping_and_generic_queries(self):
         item = ChromeSearchProvider._metadata("Dexcom hiring Business Development Lead in Itanagar, Arunachal Pradesh, India | LinkedIn", "Dexcom Itanagar, Arunachal Pradesh, India. 2 hours ago", "https://in.linkedin.com/jobs/view/role-at-dexcom-4456463987")
-        self.assertEqual((item.title, item.location, item.posted_date), ("Business Development Lead", "Itanagar, Arunachal Pradesh, India", "2 hours ago"))
+        self.assertEqual((item.title, item.company, item.location, item.posted_date), ("Business Development Lead", "Dexcom", "Itanagar, Arunachal Pradesh, India", "2 hours ago"))
+        regional = ChromeSearchProvider._metadata("Dexcom Philippines hiring Engineer in Manila, Philippines | LinkedIn", "", "https://www.linkedin.com/jobs/view/1/")
+        self.assertEqual(regional.company, "Dexcom Philippines")
+        self.assertFalse(is_dexcom_employer(regional))
         self.assertGreaterEqual(len(discovery_queries()), 4)
     def test_excel_append_and_deduplication(self):
         raw = [JobResult("https://www.linkedin.com/jobs/view/500/?x=y", "Dexcom A", "Dexcom", "Dublin, Ireland", "2 days ago"), JobResult("https://linkedin.com/jobs/view/500/", "Dexcom A", "Dexcom", "Ireland", "2 days ago"), JobResult("https://www.linkedin.com/jobs/view/501/", "Dexcom B", "Dexcom", "India", "today")]

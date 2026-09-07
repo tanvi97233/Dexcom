@@ -181,6 +181,7 @@ class ChromeSearchProvider(JobDiscoveryProvider):
     def _metadata(title: str, text: str, url: str) -> JobResult:
         combined = f"{title}\n{text}"
         title_match = re.search(r"Dexcom(?:[^\n]*?)\s+hiring\s+(.+?)\s+in\s+.+?(?:\s+\|\s+LinkedIn|$)", title, re.I)
+        company_match = re.match(r"^(.+?)\s+hiring\s+", title, re.I)
         location = re.search(r"\bin\s+([^|\n]+?)(?:\s+\|\s+LinkedIn|$)", title, re.I)
         if not location:
             location = re.search(r"Dexcom(?:\s+[^,.]+)?\s+([A-Z][^\n]+?,\s*[^\n]+)", text)
@@ -188,7 +189,7 @@ class ChromeSearchProvider(JobDiscoveryProvider):
         return JobResult(
             direct_url=url,
             title=title_match.group(1).strip() if title_match else title.replace(" | LinkedIn", "").strip(),
-            company="Dexcom" if re.match(r"^Dexcom(?:\s|$)", title, re.I) else "",
+            company=company_match.group(1).strip() if company_match else "",
             location=location.group(1).strip() if location else "",
             posted_date=posted.group(0) if posted else "",
             snippet=text,
