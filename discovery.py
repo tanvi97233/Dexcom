@@ -285,6 +285,7 @@ class LinkedInPublicJobsProvider(ChromeSearchProvider):
 
     def search(self, query: str, max_results: int) -> list[JobResult]:
         self._start()
+        from selenium.common.exceptions import TimeoutException
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import WebDriverWait
         from selenium.webdriver.support import expected_conditions as EC
@@ -300,25 +301,30 @@ class LinkedInPublicJobsProvider(ChromeSearchProvider):
         max_scrolls = int(os.getenv("LINKEDIN_MAX_SCROLLS", "20"))
         stable_limit = int(os.getenv("LINKEDIN_STABLE_ROUNDS", "3"))
         stable_rounds = 0
-        previous = 0
         for _ in range(max_scrolls):
             cards = self.driver.execute_script("return document.querySelectorAll('.base-card, .job-search-card').length")
             if cards >= max_results:
                 break
-            if cards == previous:
-                stable_rounds += 1
-            else:
-                stable_rounds = 0
-            if stable_rounds >= 2:
-                break
-            previous = cards
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
             buttons = self.driver.find_elements(By.CSS_SELECTOR, ".infinite-scroller__show-more-button, button[aria-label*='more'], button[aria-label*='More']")
             for button in buttons:
                 if button.is_displayed() and button.is_enabled():
                     self.driver.execute_script("arguments[0].click()", button)
                     break
-            sleep(1)
+            # A card batch can arrive several seconds after the scroll or button
+            # click. Wait for actual growth instead of treating a one-second
+            # snapshot as the end of the result set.
+            try:
+                WebDriverWait(self.driver, 4).until(
+                    lambda driver: driver.execute_script(
+                        "return document.querySelectorAll('.base-card, .job-search-card').length"
+                    ) > cards
+                )
+                stable_rounds = 0
+            except TimeoutException:
+                stable_rounds += 1
+                if stable_rounds >= stable_limit:
+                    break
         snapshots = self.driver.execute_script("""
           return [...document.querySelectorAll('.base-card, .job-search-card')].map(card => ({
             href: card.querySelector('a.base-card__full-link, a[href*="/jobs/view/"]')?.href || '',
