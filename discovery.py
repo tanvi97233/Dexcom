@@ -168,7 +168,10 @@ class ChromeSearchProvider(JobDiscoveryProvider):
         except Exception as error:
             shutil.rmtree(self.profile_dir, ignore_errors=True)
             self.profile_dir = None
-            raise DiscoveryError("Chrome could not be started. Install Google Chrome and ensure ChromeDriver/Selenium Manager can access it. No API key is required.") from error
+            raise DiscoveryError(
+                "Chrome could not be started. Install Google Chrome and ensure "
+                f"ChromeDriver/Selenium Manager can access it. ({type(error).__name__}: {error})"
+            ) from error
 
     @staticmethod
     def _direct_url(href: str) -> str:
