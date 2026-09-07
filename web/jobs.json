@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-07T07:29:51+00:00",
+  "generated_at": "2026-09-07T07:49:52+00:00",
   "workbook": "Dexcom_Job_Tracker.xlsx",
   "jobs": [
     {
@@ -541,6 +541,12 @@
       "posted_date": "2026-09-01",
       "title": "Sr. Systems Engineer",
       "url": "https://www.linkedin.com/jobs/view/4461756319/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-04",
+      "title": "Senior SW Development Engineer",
+      "url": "https://www.linkedin.com/jobs/view/4454303425/"
     }
   ]
 }
