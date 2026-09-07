@@ -30,11 +30,14 @@ class TrackerEngineTests(unittest.TestCase):
         bad = JobResult("https://www.linkedin.com/jobs/view/2/", "Engineer", "Other Company", "Dublin, Ireland", "today", "Working with Dexcom technology")
         self.assertTrue(is_dexcom_employer(good)); self.assertFalse(is_dexcom_employer(bad))
     def test_employer_validation_requires_exact_normalized_company_name(self):
-        for company in ("Dexcom", "dexcom", "DEXCOM", " Dexcom ", "Dexcom\t\n"):
+        for company in (
+            "Dexcom", "dexcom", "DEXCOM", " Dexcom ", "Dexcom\t\n",
+            "Dexcom Philippines", "DEXCOM PHILIPPINES", " Dexcom   Lithuania ",
+        ):
             with self.subTest(company=company):
                 self.assertTrue(is_dexcom_employer(JobResult("", company=company)))
         for company in (
-            "Dexcom Philippines", "Dexcom Lithuania", "Dexcom India", "Dexcom UK",
+            "Dexcom India", "Dexcom UK",
             "Dexcom Germany", "Dexcom Technologies", "Dexcom Health",
             "Dexcom Deutschland GmbH", "Dexcom-Philippines",
         ):
@@ -45,7 +48,7 @@ class TrackerEngineTests(unittest.TestCase):
         self.assertEqual((item.title, item.company, item.location, item.posted_date), ("Business Development Lead", "Dexcom", "Itanagar, Arunachal Pradesh, India", "2 hours ago"))
         regional = ChromeSearchProvider._metadata("Dexcom Philippines hiring Engineer in Manila, Philippines | LinkedIn", "", "https://www.linkedin.com/jobs/view/1/")
         self.assertEqual(regional.company, "Dexcom Philippines")
-        self.assertFalse(is_dexcom_employer(regional))
+        self.assertTrue(is_dexcom_employer(regional))
         self.assertGreaterEqual(len(discovery_queries()), 4)
     def test_excel_append_and_deduplication(self):
         raw = [JobResult("https://www.linkedin.com/jobs/view/500/?x=y", "Dexcom A", "Dexcom", "Dublin, Ireland", "2 days ago"), JobResult("https://linkedin.com/jobs/view/500/", "Dexcom A", "Dexcom", "Ireland", "2 days ago"), JobResult("https://www.linkedin.com/jobs/view/501/", "Dexcom B", "Dexcom", "India", "today")]

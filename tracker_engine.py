@@ -15,6 +15,7 @@ from openpyxl.utils import get_column_letter
 
 HEADERS = ["Country", "Job Posted Date", "Job Title", "Direct URL"]
 SHEET_NAME = "Dexcom Job Tracker"
+TARGET_COMPANIES = frozenset({"dexcom", "dexcom philippines", "dexcom lithuania"})
 COUNTRY_NAMES = set("""Afghanistan|Albania|Algeria|Andorra|Angola|Argentina|Armenia|Australia|Austria|Azerbaijan|Bahamas|Bahrain|Bangladesh|Barbados|Belarus|Belgium|Belize|Benin|Bhutan|Bolivia|Bosnia and Herzegovina|Botswana|Brazil|Brunei|Bulgaria|Cambodia|Cameroon|Canada|Chile|China|Colombia|Costa Rica|Croatia|Cuba|Cyprus|Czechia|Denmark|Ecuador|Egypt|El Salvador|Estonia|Ethiopia|Finland|France|Georgia|Germany|Ghana|Greece|Guatemala|Honduras|Hong Kong|Hungary|Iceland|India|Indonesia|Iran|Iraq|Ireland|Israel|Italy|Jamaica|Japan|Jordan|Kazakhstan|Kenya|Kuwait|Latvia|Lebanon|Libya|Liechtenstein|Lithuania|Luxembourg|Malaysia|Malta|Mauritius|Mexico|Moldova|Monaco|Mongolia|Montenegro|Morocco|Myanmar|Namibia|Nepal|Netherlands|New Zealand|Nicaragua|Nigeria|North Korea|North Macedonia|Norway|Oman|Pakistan|Panama|Paraguay|Peru|Philippines|Poland|Portugal|Qatar|Romania|Russia|Rwanda|Saudi Arabia|Senegal|Serbia|Singapore|Slovakia|Slovenia|South Africa|South Korea|Spain|Sri Lanka|Sweden|Switzerland|Taiwan|Tajikistan|Tanzania|Thailand|Tunisia|Turkey|Uganda|Ukraine|United Arab Emirates|United Kingdom|United States|Uruguay|Uzbekistan|Venezuela|Vietnam|Yemen|Zambia|Zimbabwe|Republic of Korea""".split("|"))
 # Multi-word countries are matched separately; aliases cover common public-search variants.
 COUNTRY_NAMES.update({"United States", "United Kingdom", "United Arab Emirates", "South Korea", "Republic of Korea", "New Zealand", "Costa Rica", "South Africa", "Saudi Arabia", "North Macedonia", "Bosnia and Herzegovina", "Dominican Republic", "El Salvador", "Papua New Guinea", "Trinidad and Tobago", "Czech Republic"})
@@ -99,14 +100,14 @@ def parse_posted_date(value: str, reference: datetime) -> date | None:
     return parsed.date() if parsed else None
 
 def is_dexcom_employer(result: JobResult) -> bool:
-    """Return true only for the canonical Dexcom LinkedIn company name.
+    """Return true only for an exact approved Dexcom LinkedIn company name.
 
     Discovery supplies the company label rendered on a LinkedIn job card.  Job
     titles and snippets are not employer identity: using them as a fallback can
-    turn a regional entity such as "Dexcom Philippines" into a false match.
+    turn an unapproved regional entity into a false match.
     """
     company = re.sub(r"\s+", " ", clean(result.company)).casefold()
-    return company == "dexcom"
+    return company in TARGET_COMPANIES
 
 def validate(result: JobResult, reference: datetime) -> tuple[JobRecord | None, str | None]:
     if not is_dexcom_employer(result):
