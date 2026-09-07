@@ -294,11 +294,17 @@ class LinkedInPublicJobsProvider(ChromeSearchProvider):
         if any(marker in lowered for marker in ("captcha", "security verification", "verify your identity", "unusual activity")):
             raise DiscoveryError("LinkedIn public job search could not be accessed due to a verification or CAPTCHA page. No access-control bypass was attempted.")
         WebDriverWait(self.driver, 15).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".base-card, .job-search-card")))
+        # LinkedIn adds cards asynchronously. Keep requesting more until the requested cap
+        # is reached or several consecutive attempts produce no additional cards.
+        max_scrolls = int(os.getenv("LINKEDIN_MAX_SCROLLS", "20"))
+        stable_limit = int(os.getenv("LINKEDIN_STABLE_ROUNDS", "3"))
         stable_rounds = 0
         previous = 0
-        for _ in range(8):
+        for _ in range(max_scrolls):
             cards = self.driver.execute_script("return document.querySelectorAll('.base-card, .job-search-card').length")
-            if cards >= max_results or cards == previous:
+            if cards >= max_results:
+                break
+            if cards == previous:
                 stable_rounds += 1
             else:
                 stable_rounds = 0

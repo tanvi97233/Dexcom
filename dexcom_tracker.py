@@ -24,7 +24,7 @@ def main() -> int:
     load_env()
     parser = argparse.ArgumentParser(description="Track public Dexcom LinkedIn Jobs results in Excel.")
     parser.add_argument("--filter", required=True, choices=["7days", "24hours"])
-    parser.add_argument("--max-results", type=int, default=int(os.getenv("RESULTS_PER_QUERY", "50")))
+    parser.add_argument("--max-results", type=int, default=int(os.getenv("RESULTS_PER_QUERY", "200")))
     parser.add_argument("--max-search-queries", type=int, default=1, help="Retained for CLI compatibility; public LinkedIn Jobs is the primary source.")
     parser.add_argument("--output", default=os.getenv("OUTPUT_FILE", "Dexcom_Job_Tracker.xlsx"))
     parser.add_argument("--verbose", action="store_true")
