@@ -32,14 +32,16 @@ class TrackerEngineTests(unittest.TestCase):
     def test_employer_validation_requires_exact_normalized_company_name(self):
         for company in (
             "Dexcom", "dexcom", "DEXCOM", " Dexcom ", "Dexcom\t\n",
-            "Dexcom Philippines", "DEXCOM PHILIPPINES", " Dexcom   Lithuania ",
+            "Dexcom Ireland - Athenry", "Dexcom Philippines", "Dexcom Lithuania",
+            "Dexcom Deutschland GmbH", "デクスコムジャパン合同会社 （Dexcom Japan）",
+            "Dexcom Italia", "Dexcom España", "Dexcom MEA", "Dexcom UK",
+            "DEXCOM PHILIPPINES", " Dexcom   Lithuania ",
         ):
             with self.subTest(company=company):
                 self.assertTrue(is_dexcom_employer(JobResult("", company=company)))
         for company in (
-            "Dexcom India", "Dexcom UK",
-            "Dexcom Germany", "Dexcom Technologies", "Dexcom Health",
-            "Dexcom Deutschland GmbH", "Dexcom-Philippines",
+            "Dexcom India", "Dexcom Germany", "Dexcom Technologies", "Dexcom Health",
+            "Dexcom-Philippines", "Dexcom Japan", "Dexcom España SL",
         ):
             with self.subTest(company=company):
                 self.assertFalse(is_dexcom_employer(JobResult("", company=company)))
