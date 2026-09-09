@@ -1,6 +1,6 @@
 import tempfile
 import unittest
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from openpyxl import load_workbook
 from discovery import ChromeSearchProvider, BrowserSettings, discovery_queries
@@ -14,6 +14,7 @@ class TrackerEngineTests(unittest.TestCase):
             self.assertEqual(within_window(parse_posted_datetime(value, self.now), self.now, "24hours"), expected)
         for value, expected in [("6 days ago", True), ("7 days ago", True), ("8 days ago", False)]:
             self.assertEqual(within_window(parse_posted_datetime(value, self.now), self.now, "7days"), expected)
+        self.assertFalse(within_window(self.now + timedelta(minutes=1), self.now, "7days"))
     def test_countries_and_unknown(self):
         self.assertEqual(country_from_location("London, UK"), "United Kingdom")
         self.assertEqual(country_from_location("Austin, USA"), "United States")
@@ -58,6 +59,19 @@ class TrackerEngineTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             path=Path(d)/"tracker.xlsx"; self.assertEqual(update_tracker(records, path), (2,1)); self.assertEqual(update_tracker(records, path), (0,3)); ws=load_workbook(path)[SHEET_NAME]
             self.assertEqual(ws.max_row, 3); self.assertTrue(ws.cell(2,4).hyperlink)
+
+    def test_excel_retains_only_the_selected_date_window(self):
+        records = [
+            validate(JobResult("https://www.linkedin.com/jobs/view/600/", "Older", "Dexcom", "Dublin, Ireland", "8 days ago"), self.now)[0],
+            validate(JobResult("https://www.linkedin.com/jobs/view/601/", "Current", "Dexcom", "Dublin, Ireland", "2 days ago"), self.now)[0],
+        ]
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "tracker.xlsx"
+            update_tracker(records, path)
+            update_tracker([], path, keep_from=(self.now - timedelta(days=7)).date(), keep_until=self.now.date())
+            ws = load_workbook(path, data_only=True)[SHEET_NAME]
+            self.assertEqual(ws.max_row, 2)
+            self.assertEqual(ws.cell(2, 3).value, "Current")
 
     def test_completed_workbook_is_copied_to_downloads(self):
         with tempfile.TemporaryDirectory() as d:

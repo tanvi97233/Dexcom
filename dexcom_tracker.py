@@ -4,7 +4,7 @@ import argparse
 import logging
 import os
 import shutil
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from discovery import DiscoveryError, configured_linkedin_provider, load_env
@@ -57,10 +57,16 @@ def main() -> int:
         if within_window(record.posted_at, reference, args.filter): valid.append(record)
     added = existing = 0
     saved_copy = None
-    if not args.dry_run and valid:
+    if not args.dry_run:
         output = Path(args.output)
+        window_days = 7 if args.filter == "7days" else 1
         try:
-            added, existing = update_tracker(valid, output)
+            added, existing = update_tracker(
+                valid,
+                output,
+                keep_from=(reference - timedelta(days=window_days)).date(),
+                keep_until=reference.date(),
+            )
         except Exception as error:
             logging.exception("Excel update failed")
             print(f"\nExcel update failed. Downloads copy was not created.\n{error}")

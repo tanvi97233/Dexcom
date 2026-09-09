@@ -139,7 +139,7 @@ def validate(result: JobResult, reference: datetime) -> tuple[JobRecord | None, 
     return JobRecord(country, posted, title, url, job_id), None
 
 def within_window(posted: datetime, reference: datetime, filter_name: str) -> bool:
-    return posted >= reference - timedelta(days=7 if filter_name == "7days" else 1)
+    return reference - timedelta(days=7 if filter_name == "7days" else 1) <= posted <= reference
 
 def load_tracker(path: Path):
     if path.exists():
@@ -158,8 +158,49 @@ def load_tracker(path: Path):
 def existing_ids(ws) -> set[str]:
     return {job_id for (url,) in ws.iter_rows(min_row=2, min_col=4, max_col=4, values_only=True) if (job_id := job_id_from_url(clean(url)))}
 
-def update_tracker(records: list[JobRecord], output: Path) -> tuple[int, int]:
+def _worksheet_date(value: Any) -> date | None:
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    if isinstance(value, str):
+        for pattern in ("%Y-%m-%d", "%b %d, %Y", "%B %d, %Y"):
+            try:
+                return datetime.strptime(value.strip(), pattern).date()
+            except ValueError:
+                pass
+    return None
+
+def _last_data_row(ws) -> int:
+    for row in range(ws.max_row, 0, -1):
+        if any(ws.cell(row, column).value is not None for column in range(1, len(HEADERS) + 1)):
+            return row
+    return 1
+
+def _remove_empty_tail(ws) -> None:
+    last_row = _last_data_row(ws)
+    # openpyxl can retain formatted cells after delete_rows(), even when they
+    # contain no values. Remove those cells so the worksheet has no blank rows.
+    for coordinate in [key for key in ws._cells if key[0] > last_row]:
+        del ws._cells[coordinate]
+
+def _realign_hyperlinks(ws) -> None:
+    # openpyxl does not adjust hyperlink references when rows are deleted.
+    # Point each surviving link back to its current cell before saving.
+    for row in range(2, _last_data_row(ws) + 1):
+        cell = ws.cell(row, 4)
+        if cell.hyperlink:
+            cell.hyperlink.ref = cell.coordinate
+
+def update_tracker(records: list[JobRecord], output: Path, *, keep_from: date | None = None, keep_until: date | None = None) -> tuple[int, int]:
     wb, ws = load_tracker(output)
+    if keep_from or keep_until:
+        for row in range(ws.max_row, 1, -1):
+            posted = _worksheet_date(ws.cell(row, 2).value)
+            if posted is None or (keep_from and posted < keep_from) or (keep_until and posted > keep_until):
+                ws.delete_rows(row, 1)
+        _remove_empty_tail(ws)
+        _realign_hyperlinks(ws)
     known = existing_ids(ws)
     added = skipped = 0
     thin = Side(style="thin", color="B7B7B7")
@@ -169,7 +210,7 @@ def update_tracker(records: list[JobRecord], output: Path) -> tuple[int, int]:
             skipped += 1
             continue
         known.add(record.job_id)
-        row = ws.max_row + 1
+        row = _last_data_row(ws) + 1
         values = [record.country, record.posted_at.date(), record.title, record.url]
         for col, value in enumerate(values, 1):
             c = ws.cell(row, col, value)
@@ -179,7 +220,7 @@ def update_tracker(records: list[JobRecord], output: Path) -> tuple[int, int]:
         ws.cell(row, 4).hyperlink = record.url
         ws.cell(row, 4).font = Font(name="Arial", size=10, color="0563C1", underline="single")
         added += 1
-    ws.freeze_panes, ws.auto_filter.ref = "A2", f"A1:D{max(ws.max_row, 1)}"
+    ws.freeze_panes, ws.auto_filter.ref = "A2", f"A1:D{_last_data_row(ws)}"
     for i, width in enumerate([22, 18, 55, 60], 1): ws.column_dimensions[chr(64+i)].width = width
     wb.save(output)
     return added, skipped
