@@ -273,6 +273,13 @@ class LinkedInPublicJobsProvider(ChromeSearchProvider):
     """Collects only the job cards publicly rendered by LinkedIn's unauthenticated Jobs page."""
 
     FILTER_MAP = {"7days": "r604800", "24hours": "r86400"}
+    WORLDWIDE_GEO_ID = "92000000"
+    # Exact public LinkedIn company facets supplied from the approved manual
+    # Worldwide search. Employer-name validation remains a second safeguard.
+    COMPANY_FILTER_IDS = (
+        "89370804", "107954448", "109396401", "109439090", "78381776",
+        "104510627", "42221", "103839913", "105335318", "105280523",
+    )
 
     def __init__(self, settings: BrowserSettings, filter_name: str):
         super().__init__(settings)
@@ -283,6 +290,8 @@ class LinkedInPublicJobsProvider(ChromeSearchProvider):
         return "https://www.linkedin.com/jobs/search/?" + urlencode({
             "keywords": os.getenv("COMPANY_NAME", "Dexcom"),
             "location": "Worldwide",
+            "geoId": self.WORLDWIDE_GEO_ID,
+            "f_C": ",".join(self.COMPANY_FILTER_IDS),
             "f_TPR": self.FILTER_MAP[self.filter_name],
         })
 
@@ -311,6 +320,11 @@ class LinkedInPublicJobsProvider(ChromeSearchProvider):
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
             buttons = self.driver.find_elements(By.CSS_SELECTOR, ".infinite-scroller__show-more-button, button[aria-label*='more'], button[aria-label*='More']")
             for button in buttons:
+                # LinkedIn places the next public batch behind a control below
+                # the viewport. Scroll that normal UI control into view before
+                # checking/clicking it, otherwise only the first result batch
+                # is collected.
+                self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", button)
                 if button.is_displayed() and button.is_enabled():
                     self.driver.execute_script("arguments[0].click()", button)
                     break

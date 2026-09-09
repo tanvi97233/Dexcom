@@ -35,6 +35,7 @@ class TrackerEngineTests(unittest.TestCase):
             "Dexcom", "dexcom", "DEXCOM", " Dexcom ", "Dexcom\t\n",
             "Dexcom Ireland - Athenry", "Dexcom Philippines", "Dexcom Lithuania",
             "Dexcom Deutschland GmbH", "デクスコムジャパン合同会社 （Dexcom Japan）",
+            "デクスコムジャパン 合同会社 (Dexcom Japan)",
             "Dexcom Italia", "Dexcom España", "Dexcom MEA", "Dexcom UK",
             "DEXCOM PHILIPPINES", " Dexcom   Lithuania ",
         ):

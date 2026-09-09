@@ -1,4 +1,5 @@
 import base64
+from urllib.parse import parse_qs, urlparse
 
 from discovery import extract_linkedin_job_urls
 from discovery import BrowserSettings, LinkedInPublicJobsProvider
@@ -46,5 +47,11 @@ def test_extracts_escaped_url_from_rendered_markup():
 def test_public_linkedin_filter_url_uses_requested_time_period():
     week = LinkedInPublicJobsProvider(BrowserSettings(), "7days")._url()
     day = LinkedInPublicJobsProvider(BrowserSettings(), "24hours")._url()
-    assert "keywords=Dexcom" in week and "location=Worldwide" in week and "f_TPR=r604800" in week
-    assert "f_TPR=r86400" in day
+    week_query = parse_qs(urlparse(week).query)
+    day_query = parse_qs(urlparse(day).query)
+    assert week_query["keywords"] == ["Dexcom"]
+    assert week_query["location"] == ["Worldwide"]
+    assert week_query["geoId"] == ["92000000"]
+    assert week_query["f_C"] == [",".join(LinkedInPublicJobsProvider.COMPANY_FILTER_IDS)]
+    assert week_query["f_TPR"] == ["r604800"]
+    assert day_query["f_TPR"] == ["r86400"]
