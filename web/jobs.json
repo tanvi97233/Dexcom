@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-09T08:41:21+00:00",
+  "generated_at": "2026-09-09T09:48:57+00:00",
   "workbook": "Dexcom_Job_Tracker.xlsx",
   "jobs": [
     {
@@ -733,6 +733,24 @@
       "posted_date": "2026-09-08",
       "title": "Sr Enterprise Developer (Power Platform Developer)",
       "url": "https://www.linkedin.com/jobs/view/4455767052/"
+    },
+    {
+      "country": "India",
+      "posted_date": "2026-09-09",
+      "title": "SW Test Development Engineer 1",
+      "url": "https://www.linkedin.com/jobs/view/4465029007/"
+    },
+    {
+      "country": "India",
+      "posted_date": "2026-09-08",
+      "title": "Sr. SW Test Development Engineer V&V",
+      "url": "https://www.linkedin.com/jobs/view/4387839555/"
+    },
+    {
+      "country": "India",
+      "posted_date": "2026-09-08",
+      "title": "Staff Software Test Development Engineer",
+      "url": "https://www.linkedin.com/jobs/view/4388377406/"
     }
   ]
 }
