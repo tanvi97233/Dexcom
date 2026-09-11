@@ -4,11 +4,11 @@ import argparse
 import logging
 import os
 import shutil
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 from discovery import DiscoveryError, configured_linkedin_provider, load_env
-from tracker_engine import canonical_url, is_dexcom_employer, update_tracker, validate, within_window
+from tracker_engine import canonical_url, is_dexcom_employer, update_tracker, validate, window_start_date, within_window
 
 
 def copy_to_downloads(workbook: Path, downloads_dir: Path | None = None) -> Path:
@@ -59,12 +59,11 @@ def main() -> int:
     saved_copy = None
     if not args.dry_run:
         output = Path(args.output)
-        window_days = 7 if args.filter == "7days" else 1
         try:
             added, existing = update_tracker(
                 valid,
                 output,
-                keep_from=(reference - timedelta(days=window_days)).date(),
+                keep_from=window_start_date(reference, args.filter),
                 keep_until=reference.date(),
             )
         except Exception as error:

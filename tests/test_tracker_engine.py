@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from openpyxl import load_workbook
 from discovery import ChromeSearchProvider, BrowserSettings, discovery_queries
-from tracker_engine import JobResult, SHEET_NAME, canonical_url, country_from_location, is_dexcom_employer, job_id_from_url, parse_posted_datetime, update_tracker, validate, within_window
+from tracker_engine import JobResult, SHEET_NAME, canonical_url, country_from_location, is_dexcom_employer, job_id_from_url, parse_posted_datetime, update_tracker, validate, window_start_date, within_window
 from dexcom_tracker import copy_to_downloads
 
 class TrackerEngineTests(unittest.TestCase):
@@ -12,9 +12,10 @@ class TrackerEngineTests(unittest.TestCase):
     def test_precise_time_windows(self):
         for value, expected in [("23 hours ago", True), ("24 hours ago", True), ("25 hours ago", False)]:
             self.assertEqual(within_window(parse_posted_datetime(value, self.now), self.now, "24hours"), expected)
-        for value, expected in [("6 days ago", True), ("7 days ago", True), ("8 days ago", False)]:
+        for value, expected in [("6 days ago", True), ("7 days ago", False), ("8 days ago", False)]:
             self.assertEqual(within_window(parse_posted_datetime(value, self.now), self.now, "7days"), expected)
         self.assertFalse(within_window(self.now + timedelta(minutes=1), self.now, "7days"))
+        self.assertEqual(window_start_date(self.now, "7days"), datetime(2026, 8, 28).date())
     def test_countries_and_unknown(self):
         self.assertEqual(country_from_location("London, UK"), "United Kingdom")
         self.assertEqual(country_from_location("Austin, USA"), "United States")

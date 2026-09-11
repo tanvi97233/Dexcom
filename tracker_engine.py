@@ -139,8 +139,19 @@ def validate(result: JobResult, reference: datetime) -> tuple[JobRecord | None, 
         return None, "job title unavailable"
     return JobRecord(country, posted, title, url, job_id), None
 
+def window_start_date(reference: datetime, filter_name: str) -> date:
+    """Return the first displayed calendar date for a tracker result window."""
+    return reference.date() - timedelta(days=6 if filter_name == "7days" else 1)
+
 def within_window(posted: datetime, reference: datetime, filter_name: str) -> bool:
-    return reference - timedelta(days=7 if filter_name == "7days" else 1) <= posted <= reference
+    if posted > reference:
+        return False
+    if filter_name == "7days":
+        # Excel stores dates rather than timestamps. Keep exactly seven calendar
+        # dates including today (for example, Sep 5–11 on Sep 11), not the
+        # eight labels produced by an inclusive "now minus seven days" cutoff.
+        return window_start_date(reference, filter_name) <= posted.date() <= reference.date()
+    return reference - timedelta(days=1) <= posted <= reference
 
 def load_tracker(path: Path):
     if path.exists():
