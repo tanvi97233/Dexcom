@@ -89,6 +89,8 @@ def main() -> int:
             print(f"\nExcel was updated, but the Downloads copy could not be saved.\n{error}")
             return 1
     print("\nDexcom Job Tracker\n------------------")
+    if provider.last_reported_result_count is not None:
+        print(f"LinkedIn displayed result count: {provider.last_reported_result_count}")
     print(f"LinkedIn job cards discovered: {provider.last_cards_seen}")
     print(f"Valid LinkedIn job URLs:      {len(job_urls)}")
     print(f"Unique jobs:                  {len(unique)}")

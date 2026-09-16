@@ -80,8 +80,8 @@ PYTHONPATH=. python dexcom_tracker.py --filter 24hours --output Dexcom_Job_Track
 The tracker validates Dexcom employment, applies the selected date window, canonicalizes LinkedIn
 job URLs, and deduplicates by LinkedIn job ID before updating Excel.
 
-`RESULTS_PER_QUERY` defaults to `300`, so it covers the current 228-result public search, and public-card loading continues for up to 20 scroll
-attempts (with a three-round no-growth stop). These values can be adjusted in `.env` when LinkedIn
+`RESULTS_PER_QUERY` defaults to `300`, so it covers the current 228-result public search, and public-card loading continues for up to 40 scroll
+attempts (with a six-round no-growth stop). The run log reports both LinkedIn's displayed total and the cards actually rendered to the runner. These values can be adjusted in `.env` when LinkedIn
 changes its public results interface.
 
 ### Refresh static dashboard data locally

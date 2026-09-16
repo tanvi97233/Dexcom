@@ -165,6 +165,10 @@ class ChromeSearchProvider(JobDiscoveryProvider):
             else:
                 self.driver = webdriver.Chrome(options=options)
             self.driver.set_page_load_timeout(30)
+            # LinkedIn's result list is lazily rendered.  A desktop-sized
+            # viewport keeps the normal Load more control available on hosted
+            # headless runners as well as local browsers.
+            self.driver.set_window_size(1920, 1080)
         except Exception as error:
             shutil.rmtree(self.profile_dir, ignore_errors=True)
             self.profile_dir = None
@@ -285,6 +289,7 @@ class LinkedInPublicJobsProvider(ChromeSearchProvider):
         super().__init__(settings)
         self.filter_name = filter_name
         self.last_cards_seen = 0
+        self.last_reported_result_count: int | None = None
 
     def _url(self) -> str:
         return "https://www.linkedin.com/jobs/search/?" + urlencode({
@@ -308,15 +313,42 @@ class LinkedInPublicJobsProvider(ChromeSearchProvider):
         if any(marker in lowered for marker in ("captcha", "security verification", "verify your identity", "unusual activity")):
             raise DiscoveryError("LinkedIn public job search could not be accessed due to a verification or CAPTCHA page. No access-control bypass was attempted.")
         WebDriverWait(self.driver, 15).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".base-card, .job-search-card")))
+        count_match = re.search(r"\b([\d,]+)\s+[^\n]*?\bJobs\s+in\s+Worldwide\b", body, re.I)
+        self.last_reported_result_count = int(count_match.group(1).replace(",", "")) if count_match else None
+
+        def snapshot_cards() -> list[dict[str, str]]:
+            return self.driver.execute_script("""
+              return [...document.querySelectorAll('.base-card, .job-search-card')].map(card => ({
+                href: card.querySelector('a.base-card__full-link, a[href*="/jobs/view/"]')?.href || '',
+                title: card.querySelector('.base-search-card__title, h3')?.innerText || '',
+                company: card.querySelector('.base-search-card__subtitle, h4')?.innerText || '',
+                location: card.querySelector('.job-search-card__location')?.innerText || '',
+                posted: card.querySelector('time.job-search-card__listdate, time')?.getAttribute('datetime') || card.querySelector('time.job-search-card__listdate, time')?.innerText || '',
+                text: card.innerText || ''
+              }));
+            """)
+
+        # Keep every card seen during loading.  LinkedIn may virtualize older
+        # cards out of the DOM while later batches are appended.
+        captured: dict[str, dict[str, str]] = {}
+
+        def capture_current_cards() -> int:
+            for card in snapshot_cards():
+                key = card["href"] or "\x1f".join((card["title"], card["company"], card["location"], card["posted"]))
+                captured.setdefault(key, card)
+            return len(captured)
+
+        capture_current_cards()
         # LinkedIn adds cards asynchronously. Keep requesting more until the requested cap
         # is reached or several consecutive attempts produce no additional cards.
-        max_scrolls = int(os.getenv("LINKEDIN_MAX_SCROLLS", "20"))
-        stable_limit = int(os.getenv("LINKEDIN_STABLE_ROUNDS", "3"))
+        max_scrolls = int(os.getenv("LINKEDIN_MAX_SCROLLS", "40"))
+        stable_limit = int(os.getenv("LINKEDIN_STABLE_ROUNDS", "6"))
         stable_rounds = 0
         for _ in range(max_scrolls):
-            cards = self.driver.execute_script("return document.querySelectorAll('.base-card, .job-search-card').length")
+            cards = capture_current_cards()
             if cards >= max_results:
                 break
+            dom_cards = self.driver.execute_script("return document.querySelectorAll('.base-card, .job-search-card').length")
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
             buttons = self.driver.find_elements(By.CSS_SELECTOR, ".infinite-scroller__show-more-button, button[aria-label*='more'], button[aria-label*='More']")
             for button in buttons:
@@ -332,26 +364,26 @@ class LinkedInPublicJobsProvider(ChromeSearchProvider):
             # click. Wait for actual growth instead of treating a one-second
             # snapshot as the end of the result set.
             try:
-                WebDriverWait(self.driver, 4).until(
+                WebDriverWait(self.driver, 5).until(
                     lambda driver: driver.execute_script(
                         "return document.querySelectorAll('.base-card, .job-search-card').length"
-                    ) > cards
+                    ) > dom_cards
                 )
+                capture_current_cards()
                 stable_rounds = 0
             except TimeoutException:
+                # Capture once more even when the DOM count did not grow: some
+                # result-list updates replace virtualized nodes at a fixed size.
+                before_capture = len(captured)
+                capture_current_cards()
+                if len(captured) > before_capture:
+                    stable_rounds = 0
+                    continue
                 stable_rounds += 1
                 if stable_rounds >= stable_limit:
                     break
-        snapshots = self.driver.execute_script("""
-          return [...document.querySelectorAll('.base-card, .job-search-card')].map(card => ({
-            href: card.querySelector('a.base-card__full-link, a[href*="/jobs/view/"]')?.href || '',
-            title: card.querySelector('.base-search-card__title, h3')?.innerText || '',
-            company: card.querySelector('.base-search-card__subtitle, h4')?.innerText || '',
-            location: card.querySelector('.job-search-card__location')?.innerText || '',
-            posted: card.querySelector('time.job-search-card__listdate, time')?.getAttribute('datetime') || card.querySelector('time.job-search-card__listdate, time')?.innerText || '',
-            text: card.innerText || ''
-          }));
-        """)
+        capture_current_cards()
+        snapshots = list(captured.values())
         self.last_cards_seen = len(snapshots)
         self.last_links_inspected = len(snapshots)
         self.last_sample_destinations = []
