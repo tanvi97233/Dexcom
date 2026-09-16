@@ -4,6 +4,7 @@ import argparse
 import logging
 import os
 import shutil
+from collections import Counter
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -24,7 +25,10 @@ def main() -> int:
     load_env()
     parser = argparse.ArgumentParser(description="Track public Dexcom LinkedIn Jobs results in Excel.")
     parser.add_argument("--filter", required=True, choices=["7days", "24hours"])
-    parser.add_argument("--max-results", type=int, default=int(os.getenv("RESULTS_PER_QUERY", "200")))
+    # The approved Worldwide search has exceeded 200 results.  Keep the default
+    # above the displayed result count so the tracker does not silently stop at
+    # an arbitrary lower number.
+    parser.add_argument("--max-results", type=int, default=int(os.getenv("RESULTS_PER_QUERY", "300")))
     parser.add_argument("--max-search-queries", type=int, default=1, help="Retained for CLI compatibility; public LinkedIn Jobs is the primary source.")
     parser.add_argument("--output", default=os.getenv("OUTPUT_FILE", "Dexcom_Job_Tracker.xlsx"))
     parser.add_argument("--verbose", action="store_true")
@@ -51,10 +55,17 @@ def main() -> int:
         else: unique[job_id] = item
     dexcom = [item for item in unique.values() if is_dexcom_employer(item)]
     reference = datetime.now(); valid, failures = [], []
+    failure_counts: Counter[str] = Counter()
     for item in dexcom:
         record, error = validate(item, reference)
-        if error: failures.append(f"{item.direct_url}: {error}"); continue
-        if within_window(record.posted_at, reference, args.filter): valid.append(record)
+        if error:
+            failures.append(f"{item.direct_url}: {error}")
+            failure_counts[error] += 1
+            continue
+        if within_window(record.posted_at, reference, args.filter):
+            valid.append(record)
+        else:
+            failure_counts["posting date outside selected range"] += 1
     added = existing = 0
     saved_copy = None
     if not args.dry_run:
@@ -82,8 +93,13 @@ def main() -> int:
     print(f"Valid LinkedIn job URLs:      {len(job_urls)}")
     print(f"Unique jobs:                  {len(unique)}")
     print(f"Dexcom jobs:                  {len(dexcom)}")
+    print(f"Employer labels rejected:     {len(unique) - len(dexcom)}")
     print(f"Jobs within date range:       {len(valid)}")
     print(f"Validation failures:          {len(failures)}")
+    if failure_counts:
+        print("Excluded by rule:")
+        for reason, count in sorted(failure_counts.items()):
+            print(f"  {reason}: {count}")
     print(f"Duplicates removed:           {duplicates}")
     print(f"Existing jobs skipped:        {existing}")
     print(f"New jobs added:               {added}")

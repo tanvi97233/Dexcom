@@ -55,3 +55,10 @@ def test_public_linkedin_filter_url_uses_requested_time_period():
     assert week_query["f_C"] == [",".join(LinkedInPublicJobsProvider.COMPANY_FILTER_IDS)]
     assert week_query["f_TPR"] == ["r604800"]
     assert day_query["f_TPR"] == ["r86400"]
+
+
+def test_public_linkedin_filter_matches_the_approved_worldwide_company_facets():
+    assert LinkedInPublicJobsProvider.COMPANY_FILTER_IDS == (
+        "42221", "105335318", "105280523", "103839913", "104510627",
+        "78381776", "109439090", "107954448", "89370804",
+    )

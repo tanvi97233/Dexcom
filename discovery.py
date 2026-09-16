@@ -277,8 +277,8 @@ class LinkedInPublicJobsProvider(ChromeSearchProvider):
     # Exact public LinkedIn company facets supplied from the approved manual
     # Worldwide search. Employer-name validation remains a second safeguard.
     COMPANY_FILTER_IDS = (
-        "89370804", "107954448", "109396401", "109439090", "78381776",
-        "104510627", "42221", "103839913", "105335318", "105280523",
+        "42221", "105335318", "105280523", "103839913", "104510627",
+        "78381776", "109439090", "107954448", "89370804",
     )
 
     def __init__(self, settings: BrowserSettings, filter_name: str):
