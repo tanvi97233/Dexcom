@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-15T11:39:34+00:00",
+  "generated_at": "2026-09-16T05:19:41+00:00",
   "workbook": "Dexcom_Job_Tracker.xlsx",
   "jobs": [
     {
@@ -759,28 +759,10 @@
       "url": "https://www.linkedin.com/jobs/view/4455960251/"
     },
     {
-      "country": "Ireland",
-      "posted_date": "2026-09-08",
-      "title": "Process Technician 2 (Front End Night Shift)",
-      "url": "https://www.linkedin.com/jobs/view/4455755200/"
-    },
-    {
-      "country": "United States",
-      "posted_date": "2026-09-08",
-      "title": "Manager Systems Design Engineering",
-      "url": "https://www.linkedin.com/jobs/view/4464683405/"
-    },
-    {
       "country": "United States",
       "posted_date": "2026-09-09",
       "title": "Senior Staff Process Development Engineer",
       "url": "https://www.linkedin.com/jobs/view/4464945232/"
-    },
-    {
-      "country": "India",
-      "posted_date": "2026-09-08",
-      "title": "Manager, SW System & Solution Dev Engineer",
-      "url": "https://www.linkedin.com/jobs/view/4464452799/"
     },
     {
       "country": "Malaysia",
@@ -801,28 +783,10 @@
       "url": "https://www.linkedin.com/jobs/view/4456178209/"
     },
     {
-      "country": "Philippines",
-      "posted_date": "2026-09-08",
-      "title": "Sr Enterprise Developer (Power Platform Developer)",
-      "url": "https://www.linkedin.com/jobs/view/4455767052/"
-    },
-    {
-      "country": "United States",
-      "posted_date": "2026-09-08",
-      "title": "Software QA Engineer 2",
-      "url": "https://www.linkedin.com/jobs/view/4464606837/"
-    },
-    {
       "country": "India",
       "posted_date": "2026-09-09",
       "title": "SW Test Development Engineer 1",
       "url": "https://www.linkedin.com/jobs/view/4465029007/"
-    },
-    {
-      "country": "India",
-      "posted_date": "2026-09-08",
-      "title": "SW Development Engineer 2 - Android",
-      "url": "https://www.linkedin.com/jobs/view/4464610755/"
     },
     {
       "country": "United States",
@@ -859,12 +823,6 @@
       "posted_date": "2026-09-10",
       "title": "Sr. Staff Technical Program Manager - Sensor Technology",
       "url": "https://www.linkedin.com/jobs/view/4439394782/"
-    },
-    {
-      "country": "India",
-      "posted_date": "2026-09-08",
-      "title": "Sr. SW Test Development Engineer V&V",
-      "url": "https://www.linkedin.com/jobs/view/4387839555/"
     },
     {
       "country": "India",
@@ -1087,6 +1045,198 @@
       "posted_date": "2026-09-10",
       "title": "Sr. Federal Clinical Educator - East",
       "url": "https://www.linkedin.com/jobs/view/4455357586/"
+    },
+    {
+      "country": "Spain",
+      "posted_date": "2026-09-15",
+      "title": "Sr Legal Counsel, EMEA Privacy",
+      "url": "https://www.linkedin.com/jobs/view/4448305175/"
+    },
+    {
+      "country": "Philippines",
+      "posted_date": "2026-09-16",
+      "title": "Lead Financial Analyst",
+      "url": "https://www.linkedin.com/jobs/view/4467930929/"
+    },
+    {
+      "country": "India",
+      "posted_date": "2026-09-14",
+      "title": "SW Development Engineer 2 - Android",
+      "url": "https://www.linkedin.com/jobs/view/4464610755/"
+    },
+    {
+      "country": "Philippines",
+      "posted_date": "2026-09-15",
+      "title": "Manager Accounts Payable",
+      "url": "https://www.linkedin.com/jobs/view/4467753397/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-15",
+      "title": "Staff Business Financial Analyst - IT Infrastructure",
+      "url": "https://www.linkedin.com/jobs/view/4461264820/"
+    },
+    {
+      "country": "Slovenia",
+      "posted_date": "2026-09-15",
+      "title": "Senior Market Access Manager CEE \u2013 Healthcare",
+      "url": "https://www.linkedin.com/jobs/view/4467756362/"
+    },
+    {
+      "country": "Malaysia",
+      "posted_date": "2026-09-15",
+      "title": "Sr Equipment Engineer",
+      "url": "https://www.linkedin.com/jobs/view/4467749492/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-15",
+      "title": "Territory Business Manager - Central / SE Alabama",
+      "url": "https://www.linkedin.com/jobs/view/4448610622/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-10",
+      "title": "Associate Customer Insights Manager",
+      "url": "https://www.linkedin.com/jobs/view/4434083415/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-12",
+      "title": "Sr. Planner Analyst",
+      "url": "https://www.linkedin.com/jobs/view/4457555402/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-12",
+      "title": "Mechanical Engineering Manager",
+      "url": "https://www.linkedin.com/jobs/view/4447571908/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-14",
+      "title": "Sr. Manager, Data Protection and Insider Risk",
+      "url": "https://www.linkedin.com/jobs/view/4467266843/"
+    },
+    {
+      "country": "Germany",
+      "posted_date": "2026-09-14",
+      "title": "Brand & Portfolio Marketing Lead - DACH (m/w/d)",
+      "url": "https://www.linkedin.com/jobs/view/4467076868/"
+    },
+    {
+      "country": "India",
+      "posted_date": "2026-09-14",
+      "title": "Manager, SW System & Solution Dev Engineer",
+      "url": "https://www.linkedin.com/jobs/view/4464452799/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-12",
+      "title": "Process Development Engineer 2",
+      "url": "https://www.linkedin.com/jobs/view/4466463712/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-15",
+      "title": "Sr Software QA Engineer",
+      "url": "https://www.linkedin.com/jobs/view/4453636185/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-15",
+      "title": "Payor Analytics Senior Pricing Analyst",
+      "url": "https://www.linkedin.com/jobs/view/4467785422/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-15",
+      "title": "Associate Marketing Manager, Digital Projects",
+      "url": "https://www.linkedin.com/jobs/view/4458569116/"
+    },
+    {
+      "country": "Malaysia",
+      "posted_date": "2026-09-14",
+      "title": "Sr Automation Engineer",
+      "url": "https://www.linkedin.com/jobs/view/4467078747/"
+    },
+    {
+      "country": "Lithuania",
+      "posted_date": "2026-09-14",
+      "title": "Technical Support Representative, Dutch Speaker",
+      "url": "https://www.linkedin.com/jobs/view/4364850511/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-15",
+      "title": "Equipment Technician 3 ( 1A Sunday - Tuesday, every other Wednesday from 5:00AM to 5:00PM)",
+      "url": "https://www.linkedin.com/jobs/view/4466422908/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-12",
+      "title": "Sr SW Test Development Engineer",
+      "url": "https://www.linkedin.com/jobs/view/4457511030/"
+    },
+    {
+      "country": "Ireland",
+      "posted_date": "2026-09-11",
+      "title": "Production Operator - Days - Athenry",
+      "url": "https://www.linkedin.com/jobs/view/4457002672/"
+    },
+    {
+      "country": "India",
+      "posted_date": "2026-09-14",
+      "title": "SW Test Development Engineer 2",
+      "url": "https://www.linkedin.com/jobs/view/4457076040/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-10",
+      "title": "Senior Staff SW Systems Engineer - Mobile Apps",
+      "url": "https://www.linkedin.com/jobs/view/4438120759/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-11",
+      "title": "Staff Algorithm Engineer - Emerging Sensing Technologies",
+      "url": "https://www.linkedin.com/jobs/view/4447244362/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-15",
+      "title": "QA Inspector 1 (Shift 1A: Days - Sun - Tues every other Wed from 5AM to 5PM )",
+      "url": "https://www.linkedin.com/jobs/view/4456781801/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-15",
+      "title": "Sr New Business Development Manager",
+      "url": "https://www.linkedin.com/jobs/view/4467430423/"
+    },
+    {
+      "country": "India",
+      "posted_date": "2026-09-14",
+      "title": "Sr. SW Test Development Engineer V&V",
+      "url": "https://www.linkedin.com/jobs/view/4387839555/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-11",
+      "title": "Staff SW Development Engineer",
+      "url": "https://www.linkedin.com/jobs/view/4466372374/"
+    },
+    {
+      "country": "India",
+      "posted_date": "2026-09-14",
+      "title": "Sr SW Development Engineer - Android",
+      "url": "https://www.linkedin.com/jobs/view/4465019023/"
+    },
+    {
+      "country": "India",
+      "posted_date": "2026-09-14",
+      "title": "Sr SW Development Engineer - IOS",
+      "url": "https://www.linkedin.com/jobs/view/4465020025/"
     }
   ]
 }
