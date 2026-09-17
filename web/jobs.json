@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-16T15:23:24+00:00",
+  "generated_at": "2026-09-17T09:55:55+00:00",
   "workbook": "Dexcom_Job_Tracker.xlsx",
   "jobs": [
     {
@@ -753,72 +753,6 @@
       "url": "https://www.linkedin.com/jobs/view/4466048486/"
     },
     {
-      "country": "Lithuania",
-      "posted_date": "2026-09-09",
-      "title": "Senior Service Designer, Technical Support",
-      "url": "https://www.linkedin.com/jobs/view/4455960251/"
-    },
-    {
-      "country": "United States",
-      "posted_date": "2026-09-09",
-      "title": "Senior Staff Process Development Engineer",
-      "url": "https://www.linkedin.com/jobs/view/4464945232/"
-    },
-    {
-      "country": "Malaysia",
-      "posted_date": "2026-09-09",
-      "title": "Supervisor Manufacturing",
-      "url": "https://www.linkedin.com/jobs/view/4428861138/"
-    },
-    {
-      "country": "Philippines",
-      "posted_date": "2026-09-09",
-      "title": "Staff Database Administrator",
-      "url": "https://www.linkedin.com/jobs/view/4456322200/"
-    },
-    {
-      "country": "Philippines",
-      "posted_date": "2026-09-09",
-      "title": "Payroll Analyst (ANZ)",
-      "url": "https://www.linkedin.com/jobs/view/4456178209/"
-    },
-    {
-      "country": "India",
-      "posted_date": "2026-09-09",
-      "title": "SW Test Development Engineer 1",
-      "url": "https://www.linkedin.com/jobs/view/4465029007/"
-    },
-    {
-      "country": "United States",
-      "posted_date": "2026-09-09",
-      "title": "Sr Workplace Solutions Analyst",
-      "url": "https://www.linkedin.com/jobs/view/4456322161/"
-    },
-    {
-      "country": "India",
-      "posted_date": "2026-09-09",
-      "title": "Staff SW Development Engineer",
-      "url": "https://www.linkedin.com/jobs/view/4465323573/"
-    },
-    {
-      "country": "Philippines",
-      "posted_date": "2026-09-09",
-      "title": "Director, Business Program Management Office",
-      "url": "https://www.linkedin.com/jobs/view/4456105988/"
-    },
-    {
-      "country": "Malaysia",
-      "posted_date": "2026-09-09",
-      "title": "Engineering Technician 4",
-      "url": "https://www.linkedin.com/jobs/view/4456115187/"
-    },
-    {
-      "country": "United States",
-      "posted_date": "2026-09-09",
-      "title": "Systems Design & Test Engineer 2",
-      "url": "https://www.linkedin.com/jobs/view/4443989564/"
-    },
-    {
       "country": "United States",
       "posted_date": "2026-09-10",
       "title": "Sr. Staff Technical Program Manager - Sensor Technology",
@@ -909,22 +843,10 @@
       "url": "https://www.linkedin.com/jobs/view/4463157831/"
     },
     {
-      "country": "Philippines",
-      "posted_date": "2026-09-09",
-      "title": "Supervisor, Applications Support",
-      "url": "https://www.linkedin.com/jobs/view/4456333076/"
-    },
-    {
       "country": "United States",
       "posted_date": "2026-09-10",
       "title": "Hardware Engineer 2",
       "url": "https://www.linkedin.com/jobs/view/4454834815/"
-    },
-    {
-      "country": "New Zealand",
-      "posted_date": "2026-09-09",
-      "title": "Territory Business Manager - South Island",
-      "url": "https://www.linkedin.com/jobs/view/4456111920/"
     },
     {
       "country": "Philippines",
@@ -985,12 +907,6 @@
       "posted_date": "2026-09-10",
       "title": "Senior Lead Government Affairs Manager - Federal",
       "url": "https://www.linkedin.com/jobs/view/4440825647/"
-    },
-    {
-      "country": "Philippines",
-      "posted_date": "2026-09-09",
-      "title": "Staff Database Administrator",
-      "url": "https://www.linkedin.com/jobs/view/4456333107/"
     },
     {
       "country": "United States",
@@ -1279,6 +1195,66 @@
       "posted_date": "2026-09-15",
       "title": "QA Inspector 1 ( RDC ) 1B Thur-Sat, every other Wednesday from 5am-5pm",
       "url": "https://www.linkedin.com/jobs/view/4459645247/"
+    },
+    {
+      "country": "India",
+      "posted_date": "2026-09-14",
+      "title": "SW Test Development Engineer 1",
+      "url": "https://www.linkedin.com/jobs/view/4465029007/"
+    },
+    {
+      "country": "Malaysia",
+      "posted_date": "2026-09-16",
+      "title": "Supervisor Security",
+      "url": "https://www.linkedin.com/jobs/view/4448891179/"
+    },
+    {
+      "country": "India",
+      "posted_date": "2026-09-14",
+      "title": "Systems Engineer 2",
+      "url": "https://www.linkedin.com/jobs/view/4461767088/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-15",
+      "title": "Sr Manager - Sensor Automation",
+      "url": "https://www.linkedin.com/jobs/view/4461540445/"
+    },
+    {
+      "country": "Philippines",
+      "posted_date": "2026-09-16",
+      "title": "Lead Business Process Analyst - SCM",
+      "url": "https://www.linkedin.com/jobs/view/4467935835/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-15",
+      "title": "Sr Hardware Engineer",
+      "url": "https://www.linkedin.com/jobs/view/4409130436/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-17",
+      "title": "Senior Technical Project Manager",
+      "url": "https://www.linkedin.com/jobs/view/4467190296/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-16",
+      "title": "Lab Technician 2 - Monday through Friday, 7:00AM to 3:30PM",
+      "url": "https://www.linkedin.com/jobs/view/4467923935/"
+    },
+    {
+      "country": "Philippines",
+      "posted_date": "2026-09-16",
+      "title": "Lead Applications Developer (Oracle Fusion SCM and Procurement)",
+      "url": "https://www.linkedin.com/jobs/view/4448836213/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-15",
+      "title": "QC Inspector 4 - 1B Thur-Sat, every other Wednesday from 5am-5pm",
+      "url": "https://www.linkedin.com/jobs/view/4462726839/"
     }
   ]
 }
