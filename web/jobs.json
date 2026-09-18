@@ -1,25 +1,7 @@
 {
-  "generated_at": "2026-09-17T10:01:48+00:00",
+  "generated_at": "2026-09-18T08:25:03+00:00",
   "workbook": "Dexcom_Job_Tracker.xlsx",
   "jobs": [
-    {
-      "country": "Philippines",
-      "posted_date": "2026-09-16",
-      "title": "Lead Financial Analyst",
-      "url": "https://www.linkedin.com/jobs/view/4467930929/"
-    },
-    {
-      "country": "Malaysia",
-      "posted_date": "2026-09-16",
-      "title": "Supervisor Security",
-      "url": "https://www.linkedin.com/jobs/view/4448891179/"
-    },
-    {
-      "country": "Philippines",
-      "posted_date": "2026-09-16",
-      "title": "Lead Business Process Analyst - SCM",
-      "url": "https://www.linkedin.com/jobs/view/4467935835/"
-    },
     {
       "country": "United States",
       "posted_date": "2026-09-17",
@@ -28,15 +10,33 @@
     },
     {
       "country": "United States",
-      "posted_date": "2026-09-16",
-      "title": "Lab Technician 2 - Monday through Friday, 7:00AM to 3:30PM",
-      "url": "https://www.linkedin.com/jobs/view/4467923935/"
+      "posted_date": "2026-09-18",
+      "title": "Associate Facilities Engineer",
+      "url": "https://www.linkedin.com/jobs/view/4468859683/"
     },
     {
-      "country": "Philippines",
-      "posted_date": "2026-09-16",
-      "title": "Lead Applications Developer (Oracle Fusion SCM and Procurement)",
-      "url": "https://www.linkedin.com/jobs/view/4448836213/"
+      "country": "Malaysia",
+      "posted_date": "2026-09-18",
+      "title": "Sr Supervisor Manufacturing",
+      "url": "https://www.linkedin.com/jobs/view/4468856812/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-18",
+      "title": "Employee Relations & Performance Management Program Specialist",
+      "url": "https://www.linkedin.com/jobs/view/4468861635/"
+    },
+    {
+      "country": "United States",
+      "posted_date": "2026-09-18",
+      "title": "Product Manager, Consumer Mobile App",
+      "url": "https://www.linkedin.com/jobs/view/4468867601/"
+    },
+    {
+      "country": "Canada",
+      "posted_date": "2026-09-18",
+      "title": "Inside Sales Representative 3",
+      "url": "https://www.linkedin.com/jobs/view/4468863641/"
     }
   ]
 }
